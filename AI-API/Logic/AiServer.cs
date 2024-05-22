@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AI_API.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -18,7 +19,23 @@ namespace AI_API
 
         private RestClient client;
         private RestRequest request;
+        private List<ChatResponse> responsList = new List<ChatResponse>();
 
+        public ChatResponse? LastResponse
+        {
+            get {
+                if (responsList.Count == 0) return null;
+                return responsList[0];
+            }
+        }
+        public string LastResponseMessage
+        {
+            get
+            {
+                if (LastResponse == null) return "";
+                return LastResponse.ToString();
+            }
+        }
         public AiServer(string baseUrl, string apiKey, string model)
         {
             this.baseUrl = baseUrl;
@@ -47,15 +64,23 @@ namespace AI_API
             request.AddJsonBody(aiPayload.GetJsonString());
         }
 
-        public object ExecutePayload(AiPayload aiPayload)
+        public ChatResponse ExecutePayload(AiPayload aiPayload)
         {
             AddPayload(aiPayload);
             return ExecuteRequest();
         }
 
-        public object ExecuteRequest()
+        public ChatResponse ExecuteRequest()
         {
-            return client.Execute(request);
+            dynamic response = client.Execute(request);
+
+            ChatResponse chatResponse = JsonConvert.DeserializeObject<ChatResponse>(response.Content);
+            chatResponse.StatusCode = response.StatusCode;
+
+            responsList.Insert(0,chatResponse);
+            if (responsList.Count > 2) responsList.RemoveAt(responsList.Count-1);
+  
+            return chatResponse;
         }
 
         public PayloadGenerator GetPayloadGenerator()

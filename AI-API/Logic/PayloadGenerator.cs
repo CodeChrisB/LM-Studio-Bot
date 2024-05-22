@@ -31,12 +31,15 @@ namespace AI_API
         {
             messages = new List<AiMessage>();
             temperature = 0.7;
+            maxTokens = 10_000;
             return this;
         }
         public void SetMaxTokens(int max) => maxTokens = max;
         public void SetTemperature(double temp) => temperature = temp;
         public PayloadGenerator AddUserMessage(string content) => AddMessage("user", content);
+        public PayloadGenerator AddUserMessage(string[] content) => AddMessage("user", string.Join(' ', content));
         public PayloadGenerator AddSystemMessage(string content) => AddMessage("system", content);
+        public PayloadGenerator AddSystemMessage(string[] content) => AddMessage("system", string.Join(' ', content));
         private PayloadGenerator AddMessage(string user, string content) {
             messages.Add(new AiMessage(user,content));
             return this;

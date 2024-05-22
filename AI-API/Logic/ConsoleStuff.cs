@@ -20,14 +20,14 @@ namespace AI_API.Logic
             Console.Clear();
             if (!done)
             {
-                if (hadTimeout) Console.WriteLine("=> We had a timeout");
+                if (hadTimeout) ConsoleWriteLineColor(ConsoleColor.Red,"==  => We had a timeout");
                 hadTimeout = false;
-                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Working on {i + 1}/{chunks.Length}] {ConsoleStuff.GenerateLoadingBar(i, chunks.Length, 20)}");
+                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Working on {i + 1}/{chunks.Length}] {GenerateLoadingBar(i, chunks.Length, 20)}");
                 Console.WriteLine(chunks[i]);
             }
             else
             {
-                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Done {i + 1}/{chunks.Length}] {ConsoleStuff.GenerateLoadingBar(1, 1, 20)}");
+                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Done {chunks.Length}/{chunks.Length}] {GenerateLoadingBar(1, 1, 20)}");
             }
 
 
