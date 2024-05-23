@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AI_API.Models;
 
 namespace AI_API.Logic
 {
     internal class ConsoleStuff
     {
+        public delegate void BeforePrint();
+        public delegate void AfterPrint();
         public static void ConsoleWriteLineColor(ConsoleColor color, string text)
         {
             Console.ForegroundColor = color;
@@ -15,14 +18,15 @@ namespace AI_API.Logic
             Console.ResetColor();
 
         }
-        public static void LogStatus(ref bool hadTimeout, string[] chunks, string lastCorrected, int i, bool done)
+        public static void LogStatus(ref bool hadTimeout, string[] chunks, ChatResponse lastCorrected, int i, bool done,BeforePrint bp = null, AfterPrint ap = null)
         {
             Console.Clear();
+            if (bp != null) bp();
             if (!done)
             {
                 if (hadTimeout) ConsoleWriteLineColor(ConsoleColor.Red,"==  => We had a timeout");
                 hadTimeout = false;
-                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Working on {i + 1}/{chunks.Length}] {GenerateLoadingBar(i, chunks.Length, 20)}");
+                ConsoleWriteLineColor(ConsoleColor.Green, $"===> Text Chunk {i + 1} of {chunks.Length} {GenerateLoadingBar(i, chunks.Length, 20)}");
                 Console.WriteLine(chunks[i]);
             }
             else
@@ -33,9 +37,12 @@ namespace AI_API.Logic
 
             if (i > 0)
             {
-                ConsoleWriteLineColor(ConsoleColor.Green, $"===> [Last corrected Text]");
-                Console.WriteLine(lastCorrected);
+                ConsoleWriteLineColor(ConsoleColor.Green, $"===> Last Chunk [Tokens:{lastCorrected.Usage.CompletionTokens}]");
+                Console.WriteLine(lastCorrected.ToString());
             }
+
+            if (ap != null) ap();
+
         }
         public static string[] SplitTextIntoChunks(string text, int lengthInSentences)
         {
